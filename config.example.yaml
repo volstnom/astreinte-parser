@@ -1,0 +1,22 @@
+path_planning_xls: "C:\\Users\\BPE\\_.xlsm"
+year: "2025"
+provider:
+  email: "example@gmail.com"
+  app_password: "abcdefghijklmbop"
+attendees:
+  - email: "1234@sample.com"
+    trigram: "XBR"
+    constraints:
+    - company: "*"
+      max: 4
+    - company: "GLS*"
+      max: 1
+  - email: "5678@sample.com"
+    trigram: "ABC"
+    constraints:
+    - company: "*"
+      max: 6
+    - company: "*DPD*"
+      max: 2
+    - company: "*COLLISSIMO*"
+      max: 2

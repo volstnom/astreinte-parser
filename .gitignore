@@ -1,0 +1,6 @@
+*/__pycache__/*
+/config.yaml
+/data/astreintes.ics
+/data/database.db
+/.vs/*
+/env/*
