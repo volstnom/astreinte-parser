@@ -141,8 +141,8 @@ class _SingleEventCalendar:
 
         new_event = ics.Event()
         new_event.transparent = True
-        new_event.begin = start_date.isoformat()
-        new_event.end = end_date.isoformat()
+        new_event.begin = start_date.astimezone().isoformat()
+        new_event.end = end_date.astimezone().isoformat()
         new_event.name = title
         new_event.uid = uid
         new_event.location = "Virtual"
