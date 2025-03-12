@@ -155,10 +155,12 @@ class AstreintePlanningParser(PlanningParser):
             if week_number != ctrl_week_number:
                 continue
 
+            not_wanted = [astr for astr in astreints]
             for astreint in astreints:
-                not_wanted = [astr for astr in astreints]
                 for constraint in Configuration().attendee_constraints:
                     if constraint.company == "*":
+                        if len(Configuration().attendee_constraints) == 1:
+                            not_wanted.pop(not_wanted.index(astreint))
                         continue
                     if fnmatch(astreint.company, constraint.company):
                         not_wanted.pop(not_wanted.index(astreint))
