@@ -69,33 +69,40 @@ if __name__ == "__main__":
         diff = database.compare_with_database(parser.affectation_astreintes)
 
     if diff.any():
+        processed_attendees = []
         user = conf.next_attendee()
-        calendar = AtreinteCalendarProvider(conf.attendee_email)
 
-        for week, astreintes in parser.get_astreintes(user).items():
-            # Contrôle des contraintes
-            inconsistencies = parser.check_attendee_constraints(week)
-            if inconsistencies:
-                # Envoyer un mail d'avertissement
-                calendar.send_email_constraint_ko(week, inconsistencies, DRY_RUN)
+        while user not in processed_attendees:
+            processed_attendees.append(user)
+            calendar = AtreinteCalendarProvider(conf.attendee_email)
 
-            if diff.is_added(user, week) or diff.is_modified(user, week):
-                # Ajout ou modification, préparation des paramètres pour création de l'évènement calendrier
-                info_sup = ["Création initiale"]
-                if diff.is_modified(user, week):
-                    info_sup = ["Mise à jour / Avant ↓"]
-                    for astreinte in database.get_astreintes(user, week):
-                        info_sup.append(f"{astreinte.company} -> {astreinte.level}")
-                calendar.add_event(week, astreintes, parser, info_sup=info_sup)  
+            for week, astreintes in parser.get_astreintes(user).items():
+                # Contrôle des contraintes
+                inconsistencies = parser.check_attendee_constraints(week)
+                if inconsistencies:
+                    # Envoyer un mail d'avertissement
+                    calendar.send_email_constraint_ko(week, inconsistencies, DRY_RUN)
 
-        # Parcours des suppressions d'astreintes pour création d'un évènement d'annulation du créneau
-        if user in diff.deleted.keys():
-            for week, astreintes in diff.deleted[user].items():
-                if diff.is_deleted(user, week):
-                    calendar.add_event(week, astreintes, parser, cancel=True, info_sup=["Annulation"])  
+                if diff.is_added(user, week) or diff.is_modified(user, week):
+                    # Ajout ou modification, préparation des paramètres pour création de l'évènement calendrier
+                    info_sup = ["Création initiale"]
+                    if diff.is_modified(user, week):
+                        info_sup = ["Mise à jour / Avant ↓"]
+                        for astreinte in database.get_astreintes(user, week):
+                            info_sup.append(f"{astreinte.company} -> {astreinte.level}")
+                    calendar.add_event(week, astreintes, parser, info_sup=info_sup)  
+
+            # Parcours des suppressions d'astreintes pour création d'un évènement d'annulation du créneau
+            if user in diff.deleted.keys():
+                for week, astreintes in diff.deleted[user].items():
+                    if diff.is_deleted(user, week):
+                        calendar.add_event(week, astreintes, parser, cancel=True, info_sup=["Annulation"])  
     
-        # Envoi de toutes les invitations
-        calendar.send_invites(DRY_RUN)
+            # Envoi de toutes les invitations
+            calendar.send_invites(DRY_RUN)
+
+            # Préparation de l'utilisateur suivant
+            user = conf.next_attendee()
 
         # Sauvegarde BDD
         database.update_all_data(parser.affectation_astreintes)
