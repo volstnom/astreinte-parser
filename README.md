@@ -123,3 +123,22 @@ Pour configurer l'envoi d'e-mails dans ce script, vous devez utiliser un mot de 
    - Si vous n'avez plus besoin de ce script, vous pouvez révoquer le mot de passe d'application depuis la même page.
 
 Ce mot de passe d'application permettra au script d'envoyer des e-mails via Gmail sans compromettre votre mot de passe principal.
+
+## Packaging
+Il est possible d'appeler les scripts python directement:
+   - executable.py (ihm encapsulant les autres scripts)
+   - lib/astreinte_par_semaine.py (uniquement pour générer le fichier excel de la semaine passée en paramètre depuis la bdd)
+   - astreinte_parser.py avec les options ci-dessus
+   
+Il est également possible de générer un executable deployable et utilisable partout.
+Pour cela 2 options sont possibles:
+   - generation uniquement d'1 exe. Dans ce cas l'environnement d'execution (fichier de conf, bdd et fichiers de sortie) se trouvent 
+     sous '%UserProfile%\AppData\Local\Temp\' et '%UserProfile%\AppData\Local\Temp\_MEIxxxxxx'
+     La commande de packaging est:
+     pyinstaller --onefile --add-data="data\database.db;data"  --add-data="lib\*.py;lib" --add-data="baseclass\*;baseclass" --add-data="astreinte_parser.py;." --add-data="config.yaml;." executable.py
+     
+   - generation de l'exe avec l'environnement d'execution. La commande est la meme sans l'option --onefile (option --onedir par défaut)
+     Dans ce cas l'environnement d'execution (fichier de conf, bdd et fichiers de sortie) se trouvent 
+     sous 'dist\executable\_internal'
+      pyinstaller --add-data="data\database.db;data"  --add-data="lib\*.py;lib" --add-data="baseclass\*;baseclass" --add-data="astreinte_parser.py;." --add-data="config.yaml;." executable.py
+     

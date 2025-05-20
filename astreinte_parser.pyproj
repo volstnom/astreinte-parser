@@ -28,6 +28,7 @@
   <ItemGroup>
     <Compile Include="baseclass\calendar_provider.py" />
     <Compile Include="baseclass\planning_parser.py" />
+    <Compile Include="lib\astreinte_par_semaine.py" />
     <Compile Include="lib\astreinte_calendar_provider.py" />
     <Compile Include="lib\database.py" />
     <Compile Include="lib\configuration.py" />

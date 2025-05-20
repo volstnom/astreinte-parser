@@ -4,3 +4,10 @@
 /data/database.db
 /.vs/*
 /env/*
+/dist/*
+/build/*
+*/AstreintesParSemaine/*
+/AstreintesParSemaine/*
+*.xlsx
+/lib/build/*
+*.exe

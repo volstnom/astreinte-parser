@@ -3,6 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from typing import Dict, List
 from baseclass.planning_parser import AstreinteInfo
+from baseclass.environnement import *
 
 Base = declarative_base()
 
@@ -42,10 +43,12 @@ class AstreinteComparisonResult:
 
 
 class Database:
-    def __init__(self, db_url='sqlite:///data/database.db'):
+    def __init__(self):
         """
         Initialise la connexion à la base de données et configure le moteur et la session.
         """
+        db_url='sqlite:///' + str(conteneur_path()) + '\data\database.db'
+        
         self.engine = create_engine(db_url)
         self.Session = sessionmaker(bind=self.engine)
         self._initialize_database()

@@ -1,6 +1,8 @@
 from typing import Dict, List
 import yaml
 from threading import Lock
+import os
+from baseclass.environnement import *
 
 
 class AstreinteConstraint:
@@ -23,7 +25,8 @@ class Configuration:
             with cls._lock:
                 if cls._instance is None:  # Double vérification pour le thread-safety
                     cls._instance = super().__new__(cls)
-                    cls._instance._initialize(config_path)
+                    config_path2 = os.path.join(conteneur_path(), "config.yaml")
+                    cls._instance._initialize(config_path2)
         return cls._instance
 
     def _initialize(self, config_path: str):
