@@ -1,0 +1,1 @@
+pyinstaller --add-data="data\database.db;data"  --add-data="lib\*.py;lib" --add-data="baseclass\*;baseclass" --add-data="astreinte_parser.py;." --add-data="config.yaml;." executable.py

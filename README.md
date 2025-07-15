@@ -135,10 +135,10 @@ Pour cela 2 options sont possibles:
    - generation uniquement d'1 exe. Dans ce cas l'environnement d'execution (fichier de conf, bdd et fichiers de sortie) se trouvent 
      sous '%UserProfile%\AppData\Local\Temp\' et '%UserProfile%\AppData\Local\Temp\_MEIxxxxxx'
      La commande de packaging est:
-     pyinstaller --onefile --add-data="data\database.db;data"  --add-data="lib\*.py;lib" --add-data="baseclass\*;baseclass" --add-data="astreinte_parser.py;." --add-data="config.yaml;." executable.py
+     pyinstaller --onefile --add-data="data\database.db;data"  --add-data="lib\*.py;lib" --add-data="baseclass\*;baseclass" --add-data="astreinte_parser.py;." --add-data="config.yaml;." ihm.py
      
    - generation de l'exe avec l'environnement d'execution. La commande est la meme sans l'option --onefile (option --onedir par défaut)
      Dans ce cas l'environnement d'execution (fichier de conf, bdd et fichiers de sortie) se trouvent 
      sous 'dist\executable\_internal'
-      pyinstaller --add-data="data\database.db;data"  --add-data="lib\*.py;lib" --add-data="baseclass\*;baseclass" --add-data="astreinte_parser.py;." --add-data="config.yaml;." executable.py
+      pyinstaller --add-data="data\database.db;data"  --add-data="lib\*.py;lib" --add-data="baseclass\*;baseclass" --add-data="astreinte_parser.py;." --add-data="config.yaml;." ihm.py
      

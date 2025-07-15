@@ -2,10 +2,10 @@
 
 
 a = Analysis(
-    ['executable.py'],
+    ['lib\\astreinte_par_semaine.py'],
     pathex=[],
     binaries=[],
-    datas=[('data\\database.db', 'data'), ('lib\\*.py', 'lib'), ('baseclass\\*', 'baseclass'), ('astreinte_parser.py', '.'), ('config.yaml', '.')],
+    datas=[],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -22,7 +22,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='executable',
+    name='astreinte_par_semaine',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
