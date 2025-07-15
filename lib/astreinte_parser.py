@@ -104,16 +104,23 @@ class AstreintePlanningParser(PlanningParser):
             for c,ast in astreinte_par_colonne.items():
                 inx=0
                 for lvl in ast['levels']:
-                    item = AstreinteInfo(ast['name'], lvl, week_nbr)
                     trigramme=str(df.iat[row_index, c+inx]).upper()
 
-                    if trigramme not in self.affectation_astreintes.keys():
-                        self.affectation_astreintes[trigramme] = dict()
+                    # Gestion des trigrammes multiples
+                    list_trigrams = trigramme.split('/')
+                    current_lvl = lvl
+                    for un_trigram in list_trigrams:
+                        item = AstreinteInfo(ast['name'], current_lvl, week_nbr)
+                        if un_trigram not in self.affectation_astreintes.keys():
+                            self.affectation_astreintes[un_trigram] = dict()
 
-                    if week_nbr not in self.affectation_astreintes[trigramme].keys():
-                        self.affectation_astreintes[trigramme][week_nbr] = list()
+                        if week_nbr not in self.affectation_astreintes[un_trigram].keys():
+                            self.affectation_astreintes[un_trigram][week_nbr] = list()
 
-                    self.affectation_astreintes[trigramme][week_nbr].append(item)
+                        self.affectation_astreintes[un_trigram][week_nbr].append(item)
+                        # Pour les autres trigrammes, on est en exception du niveau
+                        if(not current_lvl.startswith('E_')):
+                            current_lvl = 'E_' + lvl
 
                     inx+=1
 
@@ -121,13 +128,16 @@ class AstreintePlanningParser(PlanningParser):
         for trigram, ast_by_week in self.affectation_astreintes.items():
             if len(trigram) <= 6:
                 continue
-            contained_trigrams = [t for t in self.affectation_astreintes if t in trigram and t != trigram]
+            #contained_trigrams = [t for t in self.affectation_astreintes if t in trigram and t != trigram]
+            contained_trigrams = trigram.split('/')
             for linked_trigram in contained_trigrams:
                 for week_number, list_astreints in ast_by_week.items():
-                    if week_number not in self.affectation_astreintes[linked_trigram].items():
+                    if week_number not in self.affectation_astreintes[linked_trigram].keys():
                         self.affectation_astreintes[linked_trigram][week_number] = list()
 
-                        for astreint in list_astreints:
+                    for astreint in list_astreints:
+                        if astreint not in self.affectation_astreintes[linked_trigram][week_number]:
+                            # Ajouter l'astreinte à la liste de l'autre trigramme
                             self.affectation_astreintes[linked_trigram][week_number].append(astreint)
 
         # Appel à la méthode de base en fin d'import pour mettre à jour les flags internes

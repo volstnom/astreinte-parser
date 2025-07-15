@@ -44,15 +44,27 @@ def genereSemaineExcel(numeroSemaine):
             MAX(
         CASE
             WHEN level = 'N1' THEN Utilisateurs.nom 
-            ELSE NULL
+            ELSE '?'
         END)
             AS N1,
         MAX(
             CASE
             WHEN level = 'N2' THEN Utilisateurs.nom 
+            ELSE '?'
+        END) 
+        AS N2,
+        MAX(
+        CASE
+            WHEN level = 'E_N1' THEN Utilisateurs.nom 
+            ELSE NULL
+        END)
+            AS 'Exception N1',
+        MAX(
+            CASE
+            WHEN level = 'E_N2' THEN Utilisateurs.nom 
             ELSE NULL
         END) 
-        AS N2
+        AS 'Exception N2'
     FROM Astreinte A1
     LEFT JOIN Utilisateurs ON A1.trigram = Utilisateurs.trigram
     WHERE A1.week_number = :week_number
