@@ -1,6 +1,16 @@
 from datetime import datetime, date, timedelta
 from typing import List, Dict, Optional
 
+class EmployeInfo:
+    """
+    Classe modèle qui contient les donnes d'un utilisateur/employé d'une astreinte
+    """
+    def __init__(self, name: str, notif_mail: int, email: str) -> None:
+        self.name: str = name
+        self.notif_mail: int = notif_mail
+        self.email: str = email  # Adresse e-mail de l'employé, peut être None si non spécifiée
+        
+
 class PrimeAstreinte:
     """
     Classe modèle qui synthétise les primes pour une astreinte
@@ -68,6 +78,7 @@ class PlanningParser:
         self.__parsed = False
         self.primes_astreinte: Dict[str, PrimeAstreinte] = dict()
         self.affectation_astreintes: Dict[str, Dict[int, List[AstreinteInfo]]] = dict()
+        self.employes: Dict[str, EmployeInfo] = dict()  # Dictionnaire pour stocker les employés (trigramme -> nom, notification mail) 
 
     def parse_planning(self) -> None:
         """

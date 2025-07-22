@@ -12,6 +12,8 @@ class AstreintePlanningParser(PlanningParser):
 
     SHEET_PLANNING = 'Planning'
     SHEET_ASTREINT = 'ListeAstreinte'
+    SHEET_EMPLOYES = 'ListeEmployés'
+
 
     def __init__(self) -> None:
         super().__init__()
@@ -20,6 +22,8 @@ class AstreintePlanningParser(PlanningParser):
         if ignore:
             super().parse_planning()
             return
+
+        
 
         df2 = pandas.read_excel(Configuration().PATH_PLANNING_XLS, sheet_name=self.SHEET_ASTREINT)
         line_index: int = 1
@@ -34,6 +38,27 @@ class AstreintePlanningParser(PlanningParser):
             line_index += 1
             company_name = str(df2.iat[line_index, column_name])
 
+        df3 = pandas.read_excel(Configuration().PATH_PLANNING_XLS, sheet_name=self.SHEET_EMPLOYES)
+        employe_index: int = 0
+        while employe_index < len(df3):
+            employe_trigram = str(df3.iat[employe_index, 0])
+            employe_name = str(df3.iat[employe_index, 1])
+            notif_mail  = str(df3.iat[employe_index, 2])
+            if pandas.notna(notif_mail):
+                employe_notif_mail = int(notif_mail) 
+            else:
+                employe_notif_mail = 0
+            adresse_mail = str(df3.iat[employe_index, 3])
+            if pandas.notna(adresse_mail) and adresse_mail != 'nan':
+                adresse_mail = adresse_mail.strip() 
+            else:
+                adresse_mail = ''
+            if employe_trigram != None:
+                employe_trigram = employe_trigram.strip()
+                self.employes[employe_trigram] = EmployeInfo(employe_name, employe_notif_mail, adresse_mail )
+            employe_index += 1
+            
+            
         df = pandas.read_excel(Configuration().PATH_PLANNING_XLS, sheet_name=self.SHEET_PLANNING)
         print('Récup des astreintes...')
         astreinte_par_colonne = {}

@@ -209,11 +209,11 @@ class _SingleEventCalendar:
         if dry_run:
             print(f"{email_subject} -> {email_body}")
         else:
-            mailServer = smtplib.SMTP('smtp.gmail.com', 587)
-            mailServer.ehlo()
-            mailServer.starttls()
-            mailServer.ehlo()
-            mailServer.login(emailing_provider_email, emailing_provider_password)
+            mailServer = smtplib.SMTP('smtp.vinci-energies.net', 25)
+            #mailServer.ehlo()
+            #mailServer.starttls()
+            #mailServer.ehlo()
+            #mailServer.login(emailing_provider_email, emailing_provider_password)
             mailServer.sendmail(fro, attendees, msg.as_string())
             mailServer.close()
 
@@ -296,11 +296,11 @@ class CalendarProvider:
             print(f"{email_subject} -> {email_body}")
         else:
             usr, pwd = self._get_email_provider_credentials()
-            mailServer = smtplib.SMTP('smtp.gmail.com', 587)
-            mailServer.ehlo()
-            mailServer.starttls()
-            mailServer.ehlo()
-            mailServer.login(usr, pwd)
+            mailServer = smtplib.SMTP('smtp.vinci-energies.net', 25)
+            #mailServer.ehlo()
+            #mailServer.starttls()
+            #mailServer.ehlo()
+            #mailServer.login(usr, pwd)
             mailServer.sendmail(fro, attendees, msg.as_string())
             mailServer.close()
 

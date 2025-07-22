@@ -49,12 +49,12 @@ def RAZDonneesAstreinte():
     commandeScript = Path(pathScript) / "astreinte_parser.py"
     subprocess.run([sys.executable,commandeScript,"--clear-all"],env=os.environ.copy())
 
-def RegenereDonneesAstreinte():
-    print("appel du script parser avec --force")
+def majDonneesSansNotif():
+    print("appel du script parser avec --ignore-notif")
     pathScript = conteneur_path()
     #pathScript = os.path.dirname(os.path.abspath(__file__))
     commandeScript = Path(pathScript) / "astreinte_parser.py"
-    subprocess.run([sys.executable,commandeScript,"--force"],env=os.environ.copy())
+    subprocess.run([sys.executable,commandeScript,"--ignore-notif"],env=os.environ.copy())
 
 if __name__ == "__main__":
     
@@ -71,35 +71,33 @@ if __name__ == "__main__":
         frame_libelle = tk.Frame(window, width=400, height=55)
         frame_libelle.pack(side="left")
 
+        texte0 = tk.Label(frame_libelle, text="Depuis Excel vers BDD:", anchor="w", width=25,  fg="black", font=("Arial", 10))
+        texte0.grid(row=0,column=0)
 
+        texte1 = tk.Label(frame_libelle, text="Depuis Excel vers BDD:", anchor="w", width=25,  fg="black", font=("Arial", 10))
+        texte1.grid(row=1,column=0, pady=5)
 
         # Generation  excel semaine
-        texte1 = tk.Label(frame_libelle, text="Numéro de semaine:", anchor="w", width=25,  fg="black", font=("Arial", 10))
-        texte1.grid(row=0,column=0)
+        texte2 = tk.Label(frame_libelle, text="Numéro de semaine:", anchor="w", width=25,  fg="black", font=("Arial", 10))
+        texte2.grid(row=2,column=0)
+
+        texte3 = tk.Label(frame_libelle, text="Purge des données d'astreinte:", anchor="w", width=25,  fg="black", font=("Arial", 10))
+        texte3.grid(row=3,column=0, pady=5)
 
         entree = tk.Entry(frame_libelle, width=10,  font=("Arial", 10))
-        entree.grid(row=0,column=1)
-
-        texte2 = tk.Label(frame_libelle, text="Gestion des données d'astreinte", anchor="w", width=25,  fg="black", font=("Arial", 10))
-        texte2.grid(row=1,column=0, pady=30)
+        entree.grid(row=2,column=1)
 
         frame_bouton = tk.Frame(window, width=400, height=55)
         frame_bouton.pack(side="left")
 
-        bouton = tk.Button(frame_bouton, text="Generation excel semaine",
-                        width=30,
-                        height=1,
-                        bg="blue",
-                        fg="white",
-                        command=lancementExcelSemaine)
-        bouton.pack(side="top")
+        
 
 
 
         # Update BDD
 
 
-        bouton = tk.Button(frame_bouton, text="Mise à jour des données d'astreinte",
+        bouton = tk.Button(frame_bouton, text="Mise à jour AVEC notifications",
                         width=30,
                         height=1,
                         bg="blue",
@@ -107,17 +105,23 @@ if __name__ == "__main__":
                         command=majDonneesAstreinte)
         bouton.pack(side="top")
 
-        bouton = tk.Button(frame_bouton, text="Regénération des données d'astreinte",
+        bouton = tk.Button(frame_bouton, text="Mise à jour SANS notification",
                         width=30,
                         height=1,
                         bg="blue",
                         fg="white",
-                        command=RegenereDonneesAstreinte)
+                        command=majDonneesSansNotif)
         bouton.pack(side="top")
 
+        bouton = tk.Button(frame_bouton, text="Generation Excel semaine",
+                        width=30,
+                        height=1,
+                        bg="blue",
+                        fg="white",
+                        command=lancementExcelSemaine)
+        bouton.pack(side="top")
 
-
-        bouton = tk.Button(frame_bouton, text="RAZ des données d'astreinte",
+        bouton = tk.Button(frame_bouton, text="Reset BDD",
                         width=30,
                         height=1,
                         bg="blue",
@@ -143,8 +147,8 @@ if __name__ == "__main__":
                 if len(sys.argv) > 2:
                     if sys.argv[2] == "--clear-all":
                         astreinte_parser.traitementAstreinte(False, False, True)
-                    elif sys.argv[2] == "--force":
-                        astreinte_parser.traitementAstreinte(False, True, False)
+                    elif sys.argv[2] == "--ignore_notif":
+                        astreinte_parser.traitementAstreinte(False, False, False, True)
                 else:
                     astreinte_parser.traitementAstreinte(False, False, False)
             else:

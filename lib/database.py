@@ -2,7 +2,7 @@ from sqlalchemy import create_engine, Column, Integer, String, UniqueConstraint,
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from typing import Dict, List
-from baseclass.planning_parser import AstreinteInfo
+from baseclass.planning_parser import AstreinteInfo, EmployeInfo
 from baseclass.environnement import *
 
 Base = declarative_base()
@@ -19,6 +19,16 @@ class Astreinte(Base):
         UniqueConstraint('trigram', 'week_number', 'company', 'level', name='unique_astreinte'),
     )
 
+class Employe(Base):
+    __tablename__ = 'Utilisateurs'
+    trigram = Column(String(10), primary_key=True, nullable=False)
+    nom = Column(String(100), nullable=False)
+    notification_mail = Column(Integer, nullable=False)
+    adresse_mail = Column(String(100), nullable=True)
+
+    __table_args__ = (
+        UniqueConstraint('trigram', 'nom', name='unique_utilisateur'),
+    )
 
 class AstreinteComparisonResult:
     """
@@ -60,6 +70,54 @@ class Database:
         inspector = inspect(self.engine)
         if not inspector.has_table('Astreinte'):
             Base.metadata.create_all(self.engine)
+        if not inspector.has_table('Utilisateurs'):
+            Base.metadata.create_all(self.engine)
+
+    def get_utilisateurs(self, trigram=None) -> Employe:
+        """
+        Récupère les utlisateurs de la base de données. Si un trigram est spécifié, filtre par trigram.
+        """
+        with self.Session() as session:
+            query = session.query(Employe)
+            if trigram:
+                query = query.filter_by(trigram=trigram)
+            return query.all()
+        
+    def add_utilisateur(self, trigram, nom, notification_mail=1, adresse_mail=None):
+        """
+        Ajoute une nouvelle astreinte à la base de données.
+        """
+        with self.Session() as session:
+            employe = Employe(trigram=trigram, nom=nom, notification_mail=notification_mail, adresse_mail=adresse_mail)
+            session.add(employe)
+            session.commit()
+
+    def delete_all_utilisateurs(self):
+        """
+        Supprime tous les utilisateurs de la base de données.
+        """
+        with self.Session() as session:
+            session.delete(Employe)
+            session.commit()
+
+    #def update_all_data(self, data: Dict[str, Dict[int, List[AstreinteInfo]]]) -> None:
+    def update_all_utilisateurs(self, data: Dict[str, EmployeInfo]) -> None:
+        with self.Session() as session:
+            session.query(Employe).delete()
+            for trigram, info_employe in data.items():
+                employe = Employe(trigram=trigram, nom=info_employe.name, notification_mail=info_employe.notif_mail, adresse_mail=info_employe.email)
+                session.add(employe)
+            session.commit()
+
+    def get_notif_mail(self, trigram) -> Employe:
+        """
+        Récupère les astreintes de la base de données. Si un trigram est spécifié, filtre par trigram.
+        """
+        with self.Session() as session:
+            query = session.query(Employe)
+            if trigram:
+                query = query.filter_by(trigram=trigram)
+            return query.one_or_none()
 
     def add_astreinte(self, trigram, week_number, company, level):
         """
