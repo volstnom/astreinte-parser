@@ -66,16 +66,21 @@ def parse_arguments() -> Tuple[bool, bool, bool, bool]:
     return args.dry_run, args.force, args.clear_all, args.ignore_notif
    
 def traitementAstreinte(dry_run: bool, ignore_bdd: bool, clear_all: bool, ignore_notif: bool = False):
+    print('Configuration yaml...')
     # Initialisation configuration
     conf = Configuration("config.yaml")
-
+    print('Appel de AstreintePlanningParser')
     # Parsing du planning d'astreinte
     parser = AstreintePlanningParser()
+
+    print('Appel de parse_planning')
     parser.parse_planning(ignore=clear_all)
 
+    print('Acces BDD')
     # Comparaison base de données
     database = Database()
 
+    print('Traitement selon option')
     if ignore_bdd:
         diff = parser.affectation_astreintes
         print("Aucun traitement sans BDD.")

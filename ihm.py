@@ -147,7 +147,7 @@ if __name__ == "__main__":
                 if len(sys.argv) > 2:
                     if sys.argv[2] == "--clear-all":
                         astreinte_parser.traitementAstreinte(False, False, True)
-                    elif sys.argv[2] == "--ignore_notif":
+                    elif sys.argv[2] == "--ignore-notif":
                         astreinte_parser.traitementAstreinte(False, False, False, True)
                 else:
                     astreinte_parser.traitementAstreinte(False, False, False)

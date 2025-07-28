@@ -43,13 +43,15 @@ def genereSemaineExcel(numeroSemaine):
             A1.company As Client,
             MAX(
         CASE
-            WHEN level = 'N1' THEN Utilisateurs.nom 
+            WHEN level = 'N1' AND A1.trigram != 'NAN' THEN Utilisateurs.nom
+            WHEN level = 'N1_only' AND A1.trigram != 'NAN' THEN Utilisateurs.nom
             ELSE '?'
         END)
             AS N1,
         MAX(
             CASE
-            WHEN level = 'N2' THEN Utilisateurs.nom 
+            WHEN level = 'N2' AND A1.trigram != 'NAN' THEN Utilisateurs.nom 
+            WHEN level = 'N1_only' THEN NULL
             ELSE '?'
         END) 
         AS N2,
@@ -88,7 +90,7 @@ def genereSemaineExcel(numeroSemaine):
 
     # Exportation des résultats vers un fichier Excel
     df.to_excel(nomFichierExcel, sheet_name=libelleSemaine ,index=False)
-
+    df.to_csv(Path(dossier_sortie) / f"{libelleSemaine}.csv", index=False)
     # Fermeture de la connexion
     conn.close()
 

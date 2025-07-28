@@ -21,11 +21,14 @@ class AstreintePlanningParser(PlanningParser):
     def parse_planning(self, ignore=False) -> None:
         if ignore:
             super().parse_planning()
+            print('Pas d''action de parsing du planning...')
             return
 
-        
+        print('Parsing du planning des astreintes...')
+         
 
         df2 = pandas.read_excel(Configuration().PATH_PLANNING_XLS, sheet_name=self.SHEET_ASTREINT)
+        print('Récup des infos astreintes...')
         line_index: int = 1
         column_name: int = 0
         column_n1: int = 3
@@ -39,18 +42,25 @@ class AstreintePlanningParser(PlanningParser):
             company_name = str(df2.iat[line_index, column_name])
 
         df3 = pandas.read_excel(Configuration().PATH_PLANNING_XLS, sheet_name=self.SHEET_EMPLOYES)
+        print('Récup des employés...')
         employe_index: int = 0
         while employe_index < len(df3):
-            employe_trigram = str(df3.iat[employe_index, 0])
+            employe_trigram = str(df3.iat[employe_index, 0]).upper()
             employe_name = str(df3.iat[employe_index, 1])
-            notif_mail  = str(df3.iat[employe_index, 2])
-            if pandas.notna(notif_mail):
-                employe_notif_mail = int(notif_mail) 
+            if 2 < df3.shape[1]:
+                notif_mail  = int(df3.iat[employe_index, 2])
+                if pandas.notna(notif_mail):
+                    employe_notif_mail = int(notif_mail) 
+                else:
+                    employe_notif_mail = 0
             else:
                 employe_notif_mail = 0
-            adresse_mail = str(df3.iat[employe_index, 3])
-            if pandas.notna(adresse_mail) and adresse_mail != 'nan':
-                adresse_mail = adresse_mail.strip() 
+            if 3 < df3.shape[1]:   
+                adresse_mail = str(df3.iat[employe_index, 3])
+                if pandas.notna(adresse_mail) and adresse_mail != 'nan':
+                    adresse_mail = adresse_mail.strip() 
+                else:
+                    adresse_mail = ''
             else:
                 adresse_mail = ''
             if employe_trigram != None:
@@ -92,7 +102,7 @@ class AstreintePlanningParser(PlanningParser):
             elif n1 == 'N1' and n2=='N2':
                 lvls = ['N1','N2']
             elif n2 == 'N1':            
-                lvls = ['N1']
+                lvls = ['N1_only']
             else:
                 found = False
                 print('ERREUR: Detection site')
