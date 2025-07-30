@@ -27,10 +27,10 @@ class AtreinteCalendarProvider(CalendarProvider):
         for astreinte in astreintes:
             content += "<li>"
             content += f"{astreinte.level} : {astreinte.company} "
-            if astreinte.level == 'N1':
+            if astreinte.level.find('N1') != -1:
                 binomeLevel = 'N2'
             else:
-                if astreinte.level == 'N2':
+                if astreinte.level.find('N2') != -1:
                     binomeLevel = 'N1'
                 else:
                     binomeLevel = ''
