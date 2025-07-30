@@ -26,10 +26,27 @@ class AtreinteCalendarProvider(CalendarProvider):
         content += "<ul>"
         for astreinte in astreintes:
             content += "<li>"
-            content += f"{astreinte.company} : {astreinte.level}"
-            prime = parser.get_prime_astreinte(astreinte.company, astreinte.level)
-            if prime != 0:
-                content += f" ({prime} EUR)"
+            content += f"{astreinte.level} : {astreinte.company} "
+            if astreinte.level == 'N1':
+                binomeLevel = 'N2'
+            else:
+                if astreinte.level == 'N2':
+                    binomeLevel = 'N1'
+                else:
+                    binomeLevel = ''
+            binome = astreinte.binome
+            if binome != '':
+                content += f"({binomeLevel}:{binome})"
+            horaire = parser.get_horaires_astreinte(astreinte.company)
+            if horaire != '':
+                content += f" - {horaire}"
+            #prime = parser.get_prime_astreinte(astreinte.company, astreinte.level)
+            #if prime != 0:
+                #content += f" ({prime} EUR)"
+            
+            commentaire = astreinte.comment
+            if commentaire and commentaire != '':
+                content += f"<BR> <i> Exceptions : {commentaire}</i> </BR>"
             content += "</li>"
         content += "</ul>"
 

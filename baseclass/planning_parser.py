@@ -13,12 +13,13 @@ class EmployeInfo:
 
 class PrimeAstreinte:
     """
-    Classe modèle qui synthétise les primes pour une astreinte
+    Classe modèle qui synthétise les primes et horaires pour une astreinte
     """
-    def __init__(self, company: str, prime_n1: int, prime_n2: int) -> None:
+    def __init__(self, company: str, prime_n1: int, prime_n2: int, horaires: str) -> None:
         self.company: str = company
         self.prime_n1: int = prime_n1
         self.prime_n2: int = prime_n2
+        self.horaires: str = horaires  # Horaires de l'astreinte, formaté en chaîne de caractères
        
 
 class AstreinteInfo:
@@ -28,13 +29,15 @@ class AstreinteInfo:
     N1 = "N1"
     N2 = "N2"
 
-    def __init__(self, company: str, level: str, week_number: int = None) -> None:
+    def __init__(self, company: str, level: str, binome: str, comment: str = None, week_number: int = None) -> None:
         self.company: str = company
         self.level: str = level
+        self.binome: str = binome  # Binôme associé à l'astreinte
         self.week_number: int = week_number
+        self.comment: str = comment  # Commentaire associé à l'astreinte
 
     def __str__(self) -> str:
-        return f"Astreinte{{S{self.week_number}: {self.company}->{self.level}}}"
+        return f"Astreinte{{S{self.week_number}: {self.company}->{self.level} (avec {self.binome}) / {self.comment}}}"
 
     def get_start_date(self, year: int) -> datetime:
         """
@@ -144,3 +147,30 @@ class PlanningParser:
             elif level == AstreinteInfo.N2:
                 montant = self.primes_astreinte[company].prime_n2
         return montant
+    
+    def get_horaires_astreinte(self, company: str) -> str:
+        """
+        Récupère le montant de la prime d'astreinte pour une entreprise et un niveau donnés.
+
+        Args :
+            company (str) : Le nom de l'entreprise concernée.
+            
+
+        Returns :
+            str : Les horaires de l'astreinte.
+
+        Raises :
+            Exception : Si la méthode `parse_planning` n'a pas encore été appelée.
+
+        Note :
+            Si l'entreprise n'existe pas dans les données ou si le niveau est invalide,
+            un horaire vide est retourné.
+        """
+        if not self.__parsed:
+            raise Exception("Le planning n'a pas été parsé.")
+
+        horaire: str = ''
+        if company in self.primes_astreinte.keys():
+            horaire = self.primes_astreinte[company].horaires
+        return horaire
+    

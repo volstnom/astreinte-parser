@@ -14,6 +14,8 @@ class Astreinte(Base):
     week_number = Column(Integer, nullable=False)
     company = Column(String(100), nullable=False)
     level = Column(String(10), nullable=False)
+    binome = Column(String(100), nullable=True)
+    commentaire = Column(String(255), nullable=True)    
 
     __table_args__ = (
         UniqueConstraint('trigram', 'week_number', 'company', 'level', name='unique_astreinte'),
@@ -119,12 +121,12 @@ class Database:
                 query = query.filter_by(trigram=trigram)
             return query.one_or_none()
 
-    def add_astreinte(self, trigram, week_number, company, level):
+    def add_astreinte(self, trigram, week_number, company, level, binome, commentaire):
         """
         Ajoute une nouvelle astreinte à la base de données.
         """
         with self.Session() as session:
-            astreinte = Astreinte(trigram=trigram, week_number=week_number, company=company, level=level)
+            astreinte = Astreinte(trigram=trigram, week_number=week_number, company=company, level=level, binome=binome, commentaire=commentaire)
             session.add(astreinte)
             session.commit()
 
@@ -179,7 +181,7 @@ class Database:
             for trigram, weeks in data.items():
                 for week_number, astreintes in weeks.items():
                     for astreinte_info in astreintes:
-                        astreinte = Astreinte(trigram=trigram, week_number=week_number, company=astreinte_info.company, level=astreinte_info.level)
+                        astreinte = Astreinte(trigram=trigram, week_number=week_number, company=astreinte_info.company, level=astreinte_info.level, binome=astreinte_info.binome, commentaire=astreinte_info.comment)
                         session.add(astreinte)
             session.commit()
 
@@ -203,7 +205,8 @@ class Database:
                             trigram=trigram,
                             week_number=week_number,
                             company=astreinte_info.company,
-                            level=astreinte_info.level
+                            level=astreinte_info.level,
+                            binome=astreinte_info.binome
                         ).first()
                         if not existing:
                             # Absent en base
@@ -219,14 +222,15 @@ class Database:
                 if (trigram not in data or
                         week_number not in data[trigram] or
                         not any(
-                            astreinte.company == info.company and astreinte.level == info.level
+                            astreinte.company == info.company and astreinte.level == info.level and astreinte.binome == info.binome
                             for info in data[trigram].get(week_number, [])
                         )):
                     deleted.setdefault(trigram, {}).setdefault(week_number, []).append(
                         AstreinteInfo(
                             company=astreinte.company,
                             level=astreinte.level,
-                            week_number=astreinte.week_number
+                            week_number=astreinte.week_number,
+                            binome=astreinte.binome
                         )
                     )
 

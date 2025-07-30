@@ -2,10 +2,30 @@
 from typing import Dict, List
 from lib.configuration import Configuration
 from baseclass.planning_parser import *
-import openpyxl
+from openpyxl import load_workbook
 import pandas
 import re
 from fnmatch import fnmatch
+
+
+def nettoyer_commentaire(commentaire_brut):
+    # Remplacer les espaces insécables par des espaces normaux
+    commentaire = commentaire_brut.replace('\xa0', ' ')
+
+    # Supprimer les balises automatiques et les avertissements
+    if "Commentaire" in commentaire:
+        # Utiliser une expression régulière pour capturer le texte après "Commentaire :"
+        match = re.search(r'Commentaire\s*:\s*(.*)', commentaire, re.DOTALL)
+        if match:
+            commentaire = match.group(1)
+
+    # Nettoyer les retours à la ligne, tabulations, espaces multiples
+    commentaire = re.sub(r'[\r\n\t]+', ' ', commentaire)
+    commentaire = re.sub(r'\s{2,}', ' ', commentaire)
+
+    return commentaire.strip()
+
+
 
 
 class AstreintePlanningParser(PlanningParser):
@@ -33,11 +53,13 @@ class AstreintePlanningParser(PlanningParser):
         column_name: int = 0
         column_n1: int = 3
         column_n2: int = 4
+        column_horaires: int = 7
         company_name = str(df2.iat[line_index, column_name])
         while company_name != "nan":
             prime_n1 = int(df2.iat[line_index, column_n1] if str(df2.iat[line_index, column_n1]) != 'nan' else 0)
             prime_n2 = int(df2.iat[line_index, column_n2] if str(df2.iat[line_index, column_n2]) != 'nan' else 0)
-            self.primes_astreinte[company_name] = PrimeAstreinte(company_name, prime_n1, prime_n2)
+            horaires = str(df2.iat[line_index, column_horaires] if str(df2.iat[line_index, column_horaires]) != 'nan' else '')
+            self.primes_astreinte[company_name] = PrimeAstreinte(company_name, prime_n1, prime_n2, horaires)
             line_index += 1
             company_name = str(df2.iat[line_index, column_name])
 
@@ -47,16 +69,16 @@ class AstreintePlanningParser(PlanningParser):
         while employe_index < len(df3):
             employe_trigram = str(df3.iat[employe_index, 0]).upper()
             employe_name = str(df3.iat[employe_index, 1])
-            if 2 < df3.shape[1]:
-                notif_mail  = int(df3.iat[employe_index, 2])
+            if 3 < df3.shape[1]:
+                notif_mail  = int(df3.iat[employe_index, 3] if str(df3.iat[employe_index, 3]) != 'nan' else 0)
                 if pandas.notna(notif_mail):
                     employe_notif_mail = int(notif_mail) 
                 else:
                     employe_notif_mail = 0
             else:
                 employe_notif_mail = 0
-            if 3 < df3.shape[1]:   
-                adresse_mail = str(df3.iat[employe_index, 3])
+            if 2 < df3.shape[1]:   
+                adresse_mail = str(df3.iat[employe_index, 2] if str(df3.iat[employe_index, 2]) != 'nan' else '')
                 if pandas.notna(adresse_mail) and adresse_mail != 'nan':
                     adresse_mail = adresse_mail.strip() 
                 else:
@@ -71,6 +93,20 @@ class AstreintePlanningParser(PlanningParser):
             
         df = pandas.read_excel(Configuration().PATH_PLANNING_XLS, sheet_name=self.SHEET_PLANNING)
         print('Récup des astreintes...')
+        wb = load_workbook(Configuration().PATH_PLANNING_XLS, data_only=True)
+        ws = wb[self.SHEET_PLANNING]
+        print(' et des commentaires...')
+
+        commentaires = {}
+        for row in ws.iter_rows():
+            for cell in row:
+                if cell.comment is not None:
+                    # Initialiser le sous-dictionnaire si la clé n'existe pas encore
+                    if cell.row not in commentaires:
+                        commentaires[cell.row] = {}
+                    commentaires[cell.row][cell.column] = nettoyer_commentaire(cell.comment.text)
+        wb.close()
+
         astreinte_par_colonne = {}
         c=1
     
@@ -138,14 +174,28 @@ class AstreintePlanningParser(PlanningParser):
             lst = []
             for c,ast in astreinte_par_colonne.items():
                 inx=0
+                indx_binome=1
                 for lvl in ast['levels']:
-                    trigramme=str(df.iat[row_index, c+inx]).upper()
-
+                    valeurExcel = df.iat[row_index, c+inx]
+                    # Bypass des astreintes N/A
+                    if pandas.isna(valeurExcel):
+                        continue
+                    trigramme=str(valeurExcel).upper()
+                    
+                    # Gestion des binômes
+                    if len(ast['levels']) > 1 :
+                        binome=str(df.iat[row_index, c+indx_binome-inx]).upper()
+                    else:
+                        binome = ''
+                    # Gestion des commentaires
+                    offsetLigne = 2
+                    offsetColonne = 1
+                    commentaire = commentaires.get(row_index+offsetLigne, {}).get(c+offsetColonne+inx, '')
                     # Gestion des trigrammes multiples
                     list_trigrams = trigramme.split('/')
                     current_lvl = lvl
                     for un_trigram in list_trigrams:
-                        item = AstreinteInfo(ast['name'], current_lvl, week_nbr)
+                        item = AstreinteInfo(ast['name'], current_lvl, binome, commentaire, week_nbr)
                         if un_trigram not in self.affectation_astreintes.keys():
                             self.affectation_astreintes[un_trigram] = dict()
 
