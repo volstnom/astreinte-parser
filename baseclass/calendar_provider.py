@@ -187,7 +187,7 @@ class _SingleEventCalendar:
             email_body = first.description
 
         attendees = self.attendees
-        fro = f"Moi <{self.email_organizer}>"
+        fro = f"Astreintes <services.cesa@actemium.com>"
 
         eml_body = self.CSS + email_body
         msg = MIMEMultipart('mixed')

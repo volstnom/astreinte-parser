@@ -66,7 +66,9 @@ def genereSemaineExcel(numeroSemaine):
             WHEN level = 'E_N2' THEN Utilisateurs.nom 
             ELSE NULL
         END) 
-        AS 'Exception N2'
+        AS 'Exception N2',
+        '' AS 'Exception debut',
+        '' AS 'Exception Fin'
     FROM Astreinte A1
     LEFT JOIN Utilisateurs ON A1.trigram = Utilisateurs.trigram
     WHERE A1.week_number = :week_number

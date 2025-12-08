@@ -17,23 +17,28 @@ class AtreinteCalendarProvider(CalendarProvider):
         self.email_organizer = email_organizer
 
     def add_event(self, week_number: int, astreintes: List[AstreinteInfo], parser: AstreintePlanningParser, cancel: bool = False, info_sup: Optional[List[str]] = None) -> None:
-        if not astreintes:
-            return
+        user = parser.get_name_by_mail(self.email_organizer)
+        listPack = parser.get_pack_user_week(user, week_number) # contient les packs expert regroupés par pack par user pour la semaine
+        # astreintes contient les autres astreintes du meme user/semaine mais également les packs expert à l'unité par client
+        # la notification mail sépare les packs expert des asteintes N1/N2
+
+        # Cas aucune astreinte ni pack expert
+        if not astreintes and listPack is None or not listPack:
+            astreintes.append(AstreinteInfo(company="", level="Plus d'astreinte pour cette semaine", binome="", comment="", week_number=week_number))
 
         year = Configuration().YEAR
         first = astreintes[0]
         content  = f"<h3>Astreintes Semaine {week_number}:</h3>"
         content += "<ul>"
         for astreinte in astreintes:
+            # bypass les astreintes de type pack expert
+            if astreinte.level == 'Auto' or astreinte.level == 'Info':
+                continue
             content += "<li>"
-            content += f"{astreinte.level} : {astreinte.company} "
-            if astreinte.level.find('N1') != -1:
-                binomeLevel = 'N2'
-            else:
-                if astreinte.level.find('N2') != -1:
-                    binomeLevel = 'N1'
-                else:
-                    binomeLevel = ''
+            # Format the level and binome level
+            currentLevel, binomeLevel = self.format_level_name(astreinte.level)
+            content += f"{currentLevel} : {astreinte.company} "
+            # info binome si présent
             binome = astreinte.binome
             if binome != '':
                 content += f"({binomeLevel}:{binome})"
@@ -49,6 +54,17 @@ class AtreinteCalendarProvider(CalendarProvider):
                 content += f"<BR> <i> Exceptions : {commentaire}</i> </BR>"
             content += "</li>"
         content += "</ul>"
+
+        # ajout du pack expert dans le mail
+        if listPack is not None and listPack:
+            content += "<ul>"
+            for pack in listPack:
+                content += "<li>"
+                content += f"{pack.name}: "
+                for client in pack.clients:
+                    content += f"{client}; "
+                content += "</li>"
+            content += "</ul>"
 
         if info_sup is not None and info_sup:
             content += f"<h4 style=\"font-style:italic\">Note de mise à jour :</h4>"
@@ -79,3 +95,24 @@ class AtreinteCalendarProvider(CalendarProvider):
 
         self.send_simple_email(self.email_organizer, title, content, dry_run)
 
+    
+    def format_level_name(self, level_N1: str) -> tuple[str, str]:
+        if level_N1.find('N1') != -1:
+            current_level = 'N1'
+            binomeLevel = 'N2'
+        else:
+            if level_N1.find('N2') != -1:
+                current_level = 'N2'
+                binomeLevel = 'N1'
+            else:
+                if level_N1.find('Info') != -1:
+                    current_level = 'Pack Info'
+                    binomeLevel = ''
+                else:
+                    if level_N1.find('Auto') != -1:
+                        current_level = 'Pack Auto'
+                        binomeLevel = ''
+                    else:
+                        current_level = level_N1 # exception pour message sur annulation complete d'une semaine
+                        binomeLevel = ''
+        return current_level, binomeLevel

@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import messagebox
 import subprocess
 import os
 from pathlib import Path
@@ -43,11 +44,14 @@ def majDonneesAstreinte():
     subprocess.run([sys.executable,commandeScript],env=os.environ.copy())
 
 def RAZDonneesAstreinte():
-    print("appel du script parser avec --clear-all")
-    pathScript = conteneur_path()
-    #pathScript = os.path.dirname(os.path.abspath(__file__))
-    commandeScript = Path(pathScript) / "astreinte_parser.py"
-    subprocess.run([sys.executable,commandeScript,"--clear-all"],env=os.environ.copy())
+    
+    reponse = messagebox.askyesno("Confirmation", "Voulez-vous vraiment réinitialiser les données d'astreinte ?")
+    if reponse:
+        print("appel du script parser avec --clear-all")
+        pathScript = conteneur_path()
+        #pathScript = os.path.dirname(os.path.abspath(__file__))
+        commandeScript = Path(pathScript) / "astreinte_parser.py"
+        subprocess.run([sys.executable,commandeScript,"--clear-all"],env=os.environ.copy())
 
 def majDonneesSansNotif():
     print("appel du script parser avec --ignore-notif")
