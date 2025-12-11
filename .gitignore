@@ -11,3 +11,4 @@
 *.xlsx
 /lib/build/*
 *.exe
+/old*/*

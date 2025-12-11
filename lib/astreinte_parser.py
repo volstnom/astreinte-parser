@@ -224,8 +224,11 @@ class AstreintePlanningParser(PlanningParser):
                     valeurExcel = df.iat[row_index, c+inx] #Nom du N1 ou du N2
                     # Bypass des astreintes N/A
                     if pandas.isna(valeurExcel):
-                        continue
-                    trigramme=str(valeurExcel).strip().upper()
+                        #continue 
+                        # forcer trigramme à '' pour ne pas zapper l eventuel N2
+                        trigramme = ''
+                    else:
+                        trigramme=str(valeurExcel).strip().upper()
                     
                     # Gestion des binômes
                     if len(ast['levels']) > 1 :
@@ -255,19 +258,31 @@ class AstreintePlanningParser(PlanningParser):
                     # Ajout des packs expert 
                     # si existant
                     if len(ast['packExpert']) > inx:
+                        # Gestion des commentaires
+                        offsetLigne = 2
+                        offsetColonne = 1
+                        commentaireExp = commentaires.get(row_index_pack+offsetLigne, {}).get(c+offsetColonne+inx, '')
+
                         currentPack = ast['packExpert'][inx]
                         valeurPack_Excel = df.iat[row_index_pack, c+inx] #Trigramme du premier pack expert
                         if not pandas.isna(valeurPack_Excel):
                             trigrammeExp=str(valeurPack_Excel).strip().upper()
-                            itemPack = AstreinteInfo(ast['name'], currentPack, '', '', week_nbr)
+                            # traitement des exceptions: plusieurs users séparés par des '/'
+                            list_trigrams_exp = trigrammeExp.split('/')
+                            for un_trigram_exp in list_trigrams_exp:
+                                itemPack = AstreinteInfo(ast['name'], currentPack, '', commentaireExp, week_nbr)
 
-                            if trigrammeExp not in self.affectation_astreintes.keys():
-                                self.affectation_astreintes[trigrammeExp] = dict()
+                                if un_trigram_exp not in self.affectation_astreintes.keys():
+                                    self.affectation_astreintes[un_trigram_exp] = dict()
 
-                            if week_nbr not in self.affectation_astreintes[trigrammeExp].keys():
-                                self.affectation_astreintes[trigrammeExp][week_nbr] = list()
+                                if week_nbr not in self.affectation_astreintes[un_trigram_exp].keys():
+                                    self.affectation_astreintes[un_trigram_exp][week_nbr] = list()
 
-                            self.affectation_astreintes[trigrammeExp][week_nbr].append(itemPack)
+                                self.affectation_astreintes[un_trigram_exp][week_nbr].append(itemPack)
+                                
+                                # Pour les autres trigrammes, on est en exception du niveau
+                                if(not current_lvl.startswith('E_')):
+                                    current_lvl = 'E_' + lvl
 
                     inx+=1
                     

@@ -59,11 +59,12 @@ class AstreinteInfo:
 
 class PackExpert:
     """
-    Classe qui contient les donnes d'une astreinte de type Pack pour un utilisateur et une semaine
+    Classe qui contient les données d'une astreinte de type Pack pour un utilisateur et une semaine
     """
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, comment: str = "") -> None:
         self.name: str = name
         self.clients: List[str] = []
+        self.comment: str = comment  # Commentaire associé au pack astreinte
         #self.N1: List[str] = []
         #self.N2: List[str] = []
         
@@ -280,9 +281,11 @@ class PlanningParser:
                         else:
                             pack = PackExpert(nomPack)
                             listPack[nomPack] = pack
-                        # Ajout des autres éléments à ce pack: client
+                        # Ajout des autres éléments à ce pack: client et commentaire (uniquement si variante)
                         if astreinte.company not in pack.clients:
-                            pack.clients.append(astreinte.company)    
+                            pack.clients.append(astreinte.company)  
+                        if astreinte.comment != pack.comment:
+                            pack.comment += f"{astreinte.comment}/"  
                 return [listPack[name] for name in sorted(listPack)]
             else:
                 return {}

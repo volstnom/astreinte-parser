@@ -23,7 +23,7 @@ class AtreinteCalendarProvider(CalendarProvider):
         # la notification mail sépare les packs expert des asteintes N1/N2
 
         # Cas aucune astreinte ni pack expert
-        if not astreintes and listPack is None or not listPack:
+        if not astreintes and (listPack is None or not listPack):
             astreintes.append(AstreinteInfo(company="", level="Plus d'astreinte pour cette semaine", binome="", comment="", week_number=week_number))
 
         year = Configuration().YEAR
@@ -59,10 +59,17 @@ class AtreinteCalendarProvider(CalendarProvider):
         if listPack is not None and listPack:
             content += "<ul>"
             for pack in listPack:
+                commentairePack = 'Exceptions :'
                 content += "<li>"
                 content += f"{pack.name}: "
+                # Construction du commentaire qui sera ajouté après les clients
+                if pack.comment:
+                    commentairePack += f"{pack.comment};"
                 for client in pack.clients:
                     content += f"{client}; "
+                #ajout du commentaire au pack
+                if commentairePack != 'Exceptions :':
+                    content += f"<i>{commentairePack}</i>"
                 content += "</li>"
             content += "</ul>"
 
