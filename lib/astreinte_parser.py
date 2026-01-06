@@ -98,7 +98,7 @@ class AstreintePlanningParser(PlanningParser):
 
             
             
-        df = pandas.read_excel(Configuration().PATH_PLANNING_XLS, sheet_name=self.SHEET_PLANNING)
+        df = pandas.read_excel(Configuration().PATH_PLANNING_XLS, sheet_name=self.SHEET_PLANNING, nrows=150)
         print('Récup des astreintes...')
         wb = load_workbook(Configuration().PATH_PLANNING_XLS, data_only=True)
         ws = wb[self.SHEET_PLANNING]
@@ -189,7 +189,7 @@ class AstreintePlanningParser(PlanningParser):
         pattern_pack = re.compile(r'^S([0-9]+)\sExp\.$')
         numero_ligne_par_numero_semaine = {}
         numero_ligne_par_numero_semaine_pack = {}
-        for row_index in range(5,150):
+        for row_index in range(5,len(df)):
             txt = str(df.iat[row_index, 1])
             match = pattern.match(str(txt))
             if match != None:

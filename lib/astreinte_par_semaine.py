@@ -45,6 +45,7 @@ def genereSemaineExcel(numeroSemaine):
         CASE
             WHEN level = 'N1' AND A1.trigram != 'NAN' THEN Utilisateurs.nom
             WHEN level = 'N1_only' AND A1.trigram != 'NAN' THEN Utilisateurs.nom
+            WHEN level = 'Auto' THEN NULL
             ELSE '?'
         END)
             AS N1,
@@ -52,6 +53,7 @@ def genereSemaineExcel(numeroSemaine):
             CASE
             WHEN level = 'N2' AND A1.trigram != 'NAN' THEN Utilisateurs.nom 
             WHEN level = 'N1_only' THEN NULL
+            WHEN level = 'Auto' THEN NULL
             ELSE '?'
         END) 
         AS N2,
