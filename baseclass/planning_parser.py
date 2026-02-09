@@ -46,16 +46,16 @@ class AstreinteInfo:
     def get_start_date(self, year: int) -> datetime:
         """
         Returns :
-            datetime : La date de début de l'astreinte : Vendredi d'avant à 17h
+            datetime : La date de début de l'astreinte : Vendredi d'avant à 18h30
         """
-        return datetime.strptime(f"{year}-W{self.week_number-1:02d}-1", "%Y-W%W-%w") - timedelta(days=3) + timedelta(hours=17)
+        return datetime.strptime(f"{year}-W{self.week_number-1:02d}-1", "%Y-W%W-%w") - timedelta(days=3) + timedelta(hours=18,minutes=30)
 
     def get_end_date(self, year: int) -> datetime:
         """
         Returns :
-            datetime : La date de fin de l'astreinte : Vendredi suivant à 17h
+            datetime : La date de fin de l'astreinte : Vendredi suivant à 18h30
         """
-        return datetime.strptime(f"{year}-W{self.week_number-1:02d}-5", "%Y-W%W-%w") + timedelta(hours=17)
+        return datetime.strptime(f"{year}-W{self.week_number-1:02d}-5", "%Y-W%W-%w") + timedelta(hours=18,minutes=30)
 
 class PackExpert:
     """
